@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	numWantedStories = 3
+	numWantedStories = 30
 
 	topStoriesURL = "https://hacker-news.firebaseio.com/v0/topstories.json"
 	storyURL      = "https://hacker-news.firebaseio.com/v0/item/"
