@@ -70,13 +70,12 @@ func fetchStory(id int) (story Story) {
 }
 
 func newsHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.New("hackernews")
-	t = template.Must(template.ParseFiles("templates/news.html"))
+	t := template.Must(template.ParseFiles("templates/news.html"))
 
 	news := News{}
 	news.fetch()
 
-	t.Execute(w, news)
+	_ = t.Execute(w, news)
 }
 
 func main() {
