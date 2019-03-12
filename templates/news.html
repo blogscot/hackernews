@@ -19,6 +19,10 @@
     section#headlines {
       font-size: 1.2rem;
     }
+
+    span.author {
+      margin-left: 1rem;
+    }
   </style>
 </head>
 
@@ -27,7 +31,7 @@
   <section id="headlines">
     <ol>
       {{ range $story := .Stories }}
-      <li>{{ $story.Title }}</li>
+      <li><a href="{{ $story.Url }}">{{ $story.Title }}</a> <span class="author">{{ $story.By }}</span></li>
       {{ end }}
     </ol>
   </section>
