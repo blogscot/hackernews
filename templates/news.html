@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Hacker News</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {{/*  <link rel="stylesheet" type="text/css" media="screen" href="style.css">  */}}
+  {{/*  <script src="main.js"></script>  */}}
+  <style>
+    body {
+      margin: 50px;
+    }
+
+    h1 {
+      font-size: 1.7rem;
+    }
+
+    section#headlines {
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Hacker News</h1>
+  <section id="headlines">
+    <ol>
+      {{ range $headline := .Headlines }}
+      <li>{{ $headline }}</li>
+      {{ end }}
+    </ol>
+  </section>
+</body>
+
+</html>
