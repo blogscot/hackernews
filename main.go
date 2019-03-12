@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"sync"
 	"text/template"
 )
 
@@ -46,16 +47,28 @@ func (n *News) loadTopStoryIDs() {
 }
 
 func (n *News) loadStories() {
+	var wg sync.WaitGroup
 	n.Stories = []Story{}
-	var story Story
+	storyChan := make(chan Story)
 
 	for i := 0; i < numWantedStories; i++ {
-		story = fetchStory(n.topStoryIDs[i])
+		wg.Add(1)
+		go fetchStory(n.topStoryIDs[i], storyChan, &wg)
+	}
+
+	go func() {
+		wg.Wait()
+		close(storyChan)
+	}()
+
+	for story := range storyChan {
 		n.Stories = append(n.Stories, story)
 	}
 }
 
-func fetchStory(id int) (story Story) {
+func fetchStory(id int, ch chan Story, wg *sync.WaitGroup) {
+	defer wg.Done()
+	var story Story
 	url := storyURL + strconv.Itoa(id) + ".json"
 	resp, err := http.Get(url)
 	if err != nil {
@@ -66,7 +79,7 @@ func fetchStory(id int) (story Story) {
 	if err = json.NewDecoder(resp.Body).Decode(&story); err != nil {
 		log.Fatalf("error parsing story: %v\n", err)
 	}
-	return
+	ch <- story
 }
 
 func newsHandler(w http.ResponseWriter, r *http.Request) {
