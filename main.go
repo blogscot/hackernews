@@ -18,10 +18,11 @@ const (
 
 type News struct {
 	topStoryIDs []int
-	Stories     []Story
+	Stories     map[int]Story
 }
 
 type Story struct {
+	ID    int    `json:"id"`
 	By    string `json:"by"`
 	Title string `json:"title"`
 	Type  string `json:"type"`
@@ -48,7 +49,7 @@ func (n *News) loadTopStoryIDs() {
 
 func (n *News) loadStories() {
 	var wg sync.WaitGroup
-	n.Stories = []Story{}
+	n.Stories = map[int]Story{}
 	storyChan := make(chan Story)
 
 	for i := 0; i < numWantedStories; i++ {
@@ -62,7 +63,7 @@ func (n *News) loadStories() {
 	}()
 
 	for story := range storyChan {
-		n.Stories = append(n.Stories, story)
+		n.Stories[story.ID] = story
 	}
 }
 
@@ -86,9 +87,16 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("templates/news.html"))
 
 	news := News{}
+	stories := make([]Story, numWantedStories)
+
 	news.fetch()
 
-	_ = t.Execute(w, news)
+	// order stories according to topStoryIDs
+	for index, id := range news.topStoryIDs[:numWantedStories] {
+		stories[index] = news.Stories[id]
+	}
+
+	_ = t.Execute(w, stories)
 }
 
 func main() {

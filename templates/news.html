@@ -34,7 +34,7 @@
   <h1>Hacker News</h1>
   <section id="headlines">
     <ol>
-      {{ range $story := .Stories }}
+      {{ range $story := . }}
       <li><a href="{{ $story.Url }}">{{ $story.Title }}</a> <span class="author">{{ $story.By }}</span></li>
       {{ end }}
     </ol>
