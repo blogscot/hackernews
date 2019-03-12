@@ -17,7 +17,7 @@ const (
 
 type News struct {
 	topStoryIDs []int
-	Headlines   []string
+	Stories     []Story
 }
 
 type Story struct {
@@ -29,7 +29,7 @@ type Story struct {
 
 func (n *News) fetch() {
 	n.loadTopStoryIDs()
-	n.loadHeadlines()
+	n.loadStories()
 }
 
 // loadTopStoryIDs loads the top 500 story ids.
@@ -45,13 +45,13 @@ func (n *News) loadTopStoryIDs() {
 	}
 }
 
-func (n *News) loadHeadlines() {
-	n.Headlines = []string{}
+func (n *News) loadStories() {
+	n.Stories = []Story{}
 	var story Story
 
 	for i := 0; i < numWantedStories; i++ {
 		story = fetchStory(n.topStoryIDs[i])
-		n.Headlines = append(n.Headlines, story.Title)
+		n.Stories = append(n.Stories, story)
 	}
 }
 

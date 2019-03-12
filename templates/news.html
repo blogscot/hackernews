@@ -26,8 +26,8 @@
   <h1>Hacker News</h1>
   <section id="headlines">
     <ol>
-      {{ range $headline := .Headlines }}
-      <li>{{ $headline }}</li>
+      {{ range $story := .Stories }}
+      <li>{{ $story.Title }}</li>
       {{ end }}
     </ol>
   </section>
