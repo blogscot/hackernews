@@ -7,10 +7,12 @@ import (
 	"strconv"
 	"sync"
 	"text/template"
+	"time"
 )
 
 const (
 	numWantedStories = 30
+	refreshTimer     = 15 * time.Minute
 
 	topStoriesURL = "https://hacker-news.firebaseio.com/v0/topstories.json"
 	storyURL      = "https://hacker-news.firebaseio.com/v0/item/"
@@ -29,9 +31,41 @@ type Story struct {
 	Url   string `json:"url"`
 }
 
+var (
+	storiesCached = false
+	mutex         = &sync.Mutex{}
+
+	newsInstance *News
+	once         sync.Once
+)
+
+// getNewsInstance returns a singleton news item.
+func getNewsInstance() *News {
+	once.Do(func() {
+		if newsInstance == nil {
+			newsInstance = &News{}
+		}
+	})
+	return newsInstance
+}
+
+// fetch loads and caches the top stories IDs and story headlines.
+// While the cache is being updated callers are paused until this
+// activity has completed.
 func (n *News) fetch() {
-	n.loadTopStoryIDs()
-	n.loadStories()
+	mutex.Lock()
+	if !storiesCached {
+		storiesCached = true
+		log.Println("loading stories...")
+		n.loadTopStoryIDs()
+		n.loadStories()
+
+		time.AfterFunc(refreshTimer, func() {
+			storiesCached = false
+			n.fetch()
+		})
+	}
+	mutex.Unlock()
 }
 
 // loadTopStoryIDs loads the top 500 story ids.
@@ -86,11 +120,10 @@ func fetchStory(id int, ch chan Story, wg *sync.WaitGroup) {
 func newsHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.ParseFiles("templates/news.html"))
 
-	news := News{}
-	stories := make([]Story, numWantedStories)
-
+	news := getNewsInstance()
 	news.fetch()
 
+	stories := make([]Story, numWantedStories)
 	// order stories according to topStoryIDs
 	for index, id := range news.topStoryIDs[:numWantedStories] {
 		stories[index] = news.Stories[id]
