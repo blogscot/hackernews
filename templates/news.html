@@ -5,8 +5,6 @@
   <meta charset="utf-8">
   <title>Hacker News</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  {{/*  <link rel="stylesheet" type="text/css" media="screen" href="style.css">  */}}
-  {{/*  <script src="main.js"></script>  */}}
   <style>
     body {
       margin: 50px;
@@ -37,7 +35,7 @@
   <section id="headlines">
     <ol>
       {{ range $story := . }}
-      <li><a href="{{ $story.Url }}">{{ $story.Title }}</a> <span class="author">({{ hostname $story.Url }})</span></li>
+      <li><a href="{{ $story.Url }}">{{ $story.Title }}</a> <span class="author">{{ hostname $story.Url }}</span> </li>
       {{ end }}
     </ol>
   </section>

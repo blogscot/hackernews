@@ -16,8 +16,9 @@ const (
 	numWantedStories = 30
 	refreshTimer     = 15 * time.Minute
 
-	topStoriesURL = "https://hacker-news.firebaseio.com/v0/topstories.json"
-	storyURL      = "https://hacker-news.firebaseio.com/v0/item/"
+	topStoriesURL  = "https://hacker-news.firebaseio.com/v0/topstories.json"
+	storyURL       = "https://hacker-news.firebaseio.com/v0/item/"
+	ycombinatorURL = "https://news.ycombinator.com/item?id="
 )
 
 type News struct {
@@ -131,6 +132,11 @@ func fetchStory(id int, ch chan Story, wg *sync.WaitGroup) {
 	if err = json.NewDecoder(resp.Body).Decode(&story); err != nil {
 		log.Fatalf("error parsing story: %v\n", err)
 	}
+
+	if story.Url == "" {
+		story.Url = ycombinatorURL + strconv.Itoa(story.ID)
+	}
+
 	ch <- story
 }
 
@@ -138,7 +144,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	funcs := template.FuncMap{
 		"hostname": func(raw string) string {
 			u, _ := url.Parse(raw)
-			return u.Hostname()
+			return fmt.Sprintf("(%s)", u.Hostname())
 		},
 	}
 	t := template.Must(template.New("news.html").Funcs(funcs).ParseFiles("templates/news.html"))
