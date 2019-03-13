@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"sync"
 	"text/template"
@@ -133,12 +135,21 @@ func fetchStory(id int, ch chan Story, wg *sync.WaitGroup) {
 }
 
 func newsHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("templates/news.html"))
+	funcs := template.FuncMap{
+		"hostname": func(raw string) string {
+			u, _ := url.Parse(raw)
+			return u.Hostname()
+		},
+	}
+	t := template.Must(template.New("news.html").Funcs(funcs).ParseFiles("templates/news.html"))
 
 	news := getNewsInstance()
 	news.fetch()
 
-	_ = t.Execute(w, news.sortStories())
+	err := t.Execute(w, news.sortStories())
+	if err != nil {
+		fmt.Printf("error executing template: %v\n", err)
+	}
 }
 
 func main() {
