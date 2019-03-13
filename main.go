@@ -101,6 +101,16 @@ func (n *News) loadStories() {
 	}
 }
 
+// sortStories orders stories according to the Top Stories ordering.
+func (n *News) sortStories() (stories []Story) {
+	stories = make([]Story, numWantedStories)
+
+	for index, id := range n.topStoryIDs[:numWantedStories] {
+		stories[index] = n.Stories[id]
+	}
+	return
+}
+
 func fetchStory(id int, ch chan Story, wg *sync.WaitGroup) {
 	defer wg.Done()
 	var story Story
@@ -123,13 +133,7 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	news := getNewsInstance()
 	news.fetch()
 
-	stories := make([]Story, numWantedStories)
-	// order stories according to topStoryIDs
-	for index, id := range news.topStoryIDs[:numWantedStories] {
-		stories[index] = news.Stories[id]
-	}
-
-	_ = t.Execute(w, stories)
+	_ = t.Execute(w, news.sortStories())
 }
 
 func main() {
