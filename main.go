@@ -33,7 +33,7 @@ type Story struct {
 
 var (
 	storiesCached = false
-	mutex         = &sync.Mutex{}
+	mutex         = &sync.RWMutex{}
 
 	newsInstance *News
 	once         sync.Once
@@ -54,6 +54,8 @@ func getNewsInstance() *News {
 // activity has completed.
 func (n *News) fetch() {
 	mutex.Lock()
+	defer mutex.Unlock()
+
 	if !storiesCached {
 		storiesCached = true
 		log.Println("loading stories...")
@@ -61,11 +63,12 @@ func (n *News) fetch() {
 		n.loadStories()
 
 		time.AfterFunc(refreshTimer, func() {
+			mutex.Lock()
 			storiesCached = false
+			mutex.Unlock()
 			n.fetch()
 		})
 	}
-	mutex.Unlock()
 }
 
 // loadTopStoryIDs loads the top 500 story ids.
@@ -105,9 +108,11 @@ func (n *News) loadStories() {
 func (n *News) sortStories() (stories []Story) {
 	stories = make([]Story, numWantedStories)
 
+	mutex.RLock()
 	for index, id := range n.topStoryIDs[:numWantedStories] {
 		stories[index] = n.Stories[id]
 	}
+	mutex.RUnlock()
 	return
 }
 
