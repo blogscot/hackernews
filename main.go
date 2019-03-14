@@ -168,7 +168,6 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", newsHandler)
-	http.HandleFunc("/hackernews", newsHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
