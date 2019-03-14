@@ -11,15 +11,8 @@
       font-size: 0.7rem;
     }
 
-    a:link {
-      color: black;
-      text-decoration: none;
-      font-family: Verdana, Geneva, sans-serif;
-    }
-
     body {
-      margin-left: 6%;
-      margin-right: 6%;
+      margin: 8px 7%;
     }
 
     h1 {
@@ -46,6 +39,14 @@
 
     ol>li>div:nth-child(2) {
       line-height: 1.3rem;
+      text-indent: 15px;
+    }
+
+    ol>li>div>a:link {
+      font-size: 0.8rem;
+      color: black;
+      text-decoration: none;
+      font-family: Verdana, Geneva, sans-serif;
     }
   </style>
 </head>
@@ -56,9 +57,9 @@
     <ol>
       {{ range $story := . }}
       <li>
-        <div>
-          <a href="{{ $story.Url }}">{{ $story.Title }}</a>&nbsp<span
-            class="small-gray">{{ hostname $story.Url }}</span>
+        <div class="small-gray">
+          <span>▲</span>
+          <a href="{{ $story.Url }}">{{ $story.Title }}</a>&nbsp<span>{{ hostname $story.Url }}</span>
         </div>
         <div class="small-gray">
           {{ $story.Score }} points by {{ $story.By }} {{ when $story.Time }} ago
