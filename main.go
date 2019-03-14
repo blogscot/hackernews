@@ -27,8 +27,10 @@ type News struct {
 }
 
 type Story struct {
-	ID    int    `json:"id"`
 	By    string `json:"by"`
+	ID    int    `json:"id"`
+	Score int    `json:"score"`
+	Time  int    `json:"time"`
 	Title string `json:"title"`
 	Type  string `json:"type"`
 	Url   string `json:"url"`

@@ -6,26 +6,46 @@
   <title>Hacker News</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+    .small-gray {
+      color: gray;
+      font-size: 0.7rem;
+    }
+
+    a:link {
+      color: black;
+      text-decoration: none;
+      font-family: Verdana, Geneva, sans-serif;
+    }
+
     body {
-      margin: 50px;
+      margin-left: 5%;
+      margin-right: 5%;
     }
 
     h1 {
-      font-size: 1.7rem;
+      font-size: 10pt;
+      padding: 3px 0;
+      margin-bottom: 0;
+      background: #ff6601;
+      text-indent: 25px;
     }
 
     section#headlines {
-      font-size: 1.2rem;
+      font-size: 0.8rem;
+      background: #f6f5ef;
     }
 
-    section#headlines ol {
+    section>ol {
+      margin: 0;
+      padding: 3px 0 0 25px;
+    }
+
+    section#headlines li+div {
       line-height: 1.6rem;
     }
 
-    span.author {
-      margin-left: 1rem;
-      color: gray;
-      font-size: 1rem;
+    ol>li>div:nth-child(2) {
+      line-height: 1.3rem;
     }
   </style>
 </head>
@@ -35,7 +55,15 @@
   <section id="headlines">
     <ol>
       {{ range $story := . }}
-      <li><a href="{{ $story.Url }}">{{ $story.Title }}</a> <span class="author">{{ hostname $story.Url }}</span> </li>
+      <li>
+        <div>
+          <a href="{{ $story.Url }}">{{ $story.Title }}</a>&nbsp<span
+            class="small-gray">{{ hostname $story.Url }}</span>
+        </div>
+        <div class="small-gray">
+          {{ $story.Score }} points by {{ $story.By }}
+        </div>
+      </li>
       {{ end }}
     </ol>
   </section>
