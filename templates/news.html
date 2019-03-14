@@ -61,7 +61,7 @@
             class="small-gray">{{ hostname $story.Url }}</span>
         </div>
         <div class="small-gray">
-          {{ $story.Score }} points by {{ $story.By }}
+          {{ $story.Score }} points by {{ $story.By }} {{ when $story.Time }} ago
         </div>
       </li>
       {{ end }}

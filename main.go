@@ -10,6 +10,8 @@ import (
 	"sync"
 	"text/template"
 	"time"
+
+	"github.com/hako/durafmt"
 )
 
 const (
@@ -30,7 +32,7 @@ type Story struct {
 	By    string `json:"by"`
 	ID    int    `json:"id"`
 	Score int    `json:"score"`
-	Time  int    `json:"time"`
+	Time  int64  `json:"time"`
 	Title string `json:"title"`
 	Type  string `json:"type"`
 	Url   string `json:"url"`
@@ -147,6 +149,10 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 		"hostname": func(raw string) string {
 			u, _ := url.Parse(raw)
 			return fmt.Sprintf("(%s)", u.Hostname())
+		},
+		"when": func(unixTime int64) string {
+			posted := time.Unix(unixTime, 0)
+			return durafmt.ParseShort(time.Since(posted)).String()
 		},
 	}
 	t := template.Must(template.New("news.html").Funcs(funcs).ParseFiles("templates/news.html"))
