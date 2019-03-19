@@ -114,7 +114,10 @@ func (n *News) loadStories() {
 
 	for i := 0; i < numWantedStories; i++ {
 		wg.Add(1)
-		go fetchStory(n.topStoryIDs[i], storyChan, &wg)
+		go func(i int) {
+			defer wg.Done()
+			storyChan <- fetchStory(n.topStoryIDs[i])
+		}(i)
 	}
 
 	go func() {
@@ -139,9 +142,7 @@ func (n *News) sortStories() (stories []Story) {
 	return
 }
 
-func fetchStory(id int, ch chan Story, wg *sync.WaitGroup) {
-	defer wg.Done()
-	var story Story
+func fetchStory(id int) (story Story) {
 	url := storyURL + strconv.Itoa(id) + ".json"
 	resp, err := http.Get(url)
 	if err != nil {
@@ -157,7 +158,7 @@ func fetchStory(id int, ch chan Story, wg *sync.WaitGroup) {
 		story.Url = ycombinatorURL + strconv.Itoa(story.ID)
 	}
 
-	ch <- story
+	return
 }
 
 func newsHandler(w http.ResponseWriter, r *http.Request) {
