@@ -38,12 +38,28 @@ type Story struct {
 	Url   string `json:"url"`
 }
 
+type PageData struct {
+	Stories []Story
+	Elapsed time.Duration
+}
+
 var (
 	storiesCached = false
 	mutex         = &sync.RWMutex{}
 
 	newsInstance *News
 	once         sync.Once
+
+	funcs = template.FuncMap{
+		"hostname": func(raw string) string {
+			u, _ := url.Parse(raw)
+			return fmt.Sprintf("(%s)", u.Hostname())
+		},
+		"when": func(unixTime int64) string {
+			posted := time.Unix(unixTime, 0)
+			return durafmt.ParseShort(time.Since(posted)).String()
+		},
+	}
 )
 
 // getNewsInstance returns a singleton news item.
@@ -145,29 +161,14 @@ func fetchStory(id int, ch chan Story, wg *sync.WaitGroup) {
 }
 
 func newsHandler(w http.ResponseWriter, r *http.Request) {
-	funcs := template.FuncMap{
-		"hostname": func(raw string) string {
-			u, _ := url.Parse(raw)
-			return fmt.Sprintf("(%s)", u.Hostname())
-		},
-		"when": func(unixTime int64) string {
-			posted := time.Unix(unixTime, 0)
-			return durafmt.ParseShort(time.Since(posted)).String()
-		},
-	}
 	t := template.Must(template.New("news.html").Funcs(funcs).ParseFiles("templates/news.html"))
+	news := getNewsInstance()
 
 	start := time.Now()
-
-	news := getNewsInstance()
 	news.fetch()
-
 	elapsed := time.Since(start)
 
-	err := t.Execute(w, struct {
-		Stories []Story
-		Elapsed time.Duration
-	}{
+	err := t.Execute(w, PageData{
 		Stories: news.sortStories(),
 		Elapsed: elapsed,
 	})
