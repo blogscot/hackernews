@@ -157,10 +157,20 @@ func newsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	t := template.Must(template.New("news.html").Funcs(funcs).ParseFiles("templates/news.html"))
 
+	start := time.Now()
+
 	news := getNewsInstance()
 	news.fetch()
 
-	err := t.Execute(w, news.sortStories())
+	elapsed := time.Since(start)
+
+	err := t.Execute(w, struct {
+		Stories []Story
+		Elapsed time.Duration
+	}{
+		Stories: news.sortStories(),
+		Elapsed: elapsed,
+	})
 	if err != nil {
 		fmt.Printf("error executing template: %v\n", err)
 	}

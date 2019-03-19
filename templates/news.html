@@ -48,6 +48,11 @@
       text-decoration: none;
       font-family: Verdana, Geneva, sans-serif;
     }
+
+    #page-load {
+      margin-top: 1rem;
+      text-align: center;
+    }
   </style>
 </head>
 
@@ -55,7 +60,7 @@
   <h1>Hacker News</h1>
   <section id="headlines">
     <ol>
-      {{ range $story := . }}
+      {{ range $story := .Stories }}
       <li>
         <div class="small-gray">
           <span>▲</span>
@@ -68,6 +73,9 @@
       {{ end }}
     </ol>
   </section>
+  <div id="page-load" class="small-gray">
+    The page loaded in {{ .Elapsed }} seconds.
+  </div>
 </body>
 
 </html>
